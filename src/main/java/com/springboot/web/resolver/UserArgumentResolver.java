@@ -5,6 +5,7 @@ import com.springboot.web.domain.User;
 import com.springboot.web.domain.enums.SocialType;
 import com.springboot.web.repository.UserRepository;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,10 +30,16 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
     private UserRepository userRepository;
 
+    public UserArgumentResolver(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterAnnotation(SocialUser.class) != null && parameter.getParameterType().equals(User.class);   //파라미터에 @SocialUser 어노테이션이 있고 타입이 User인 파라미터만 true를 반환
     }
 
+    @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpSession session = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getSession();
         User user = (User) session.getAttribute("user");
@@ -70,7 +77,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         return User.builder()
             .name(map.get("name"))
             .email(map.get("email"))
-            .principal(map.get("id"))
+            .pincipal(map.get("id"))
             .socialType(socialType)
             .createdDate(LocalDateTime.now())
             .build();
@@ -81,7 +88,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         return User.builder()
             .name(propertyMap.get("nickname"))
             .email(map.get("kaccount_email"))
-            .principal(String.valueOf(map.get("id")))
+            .pincipal(String.valueOf(map.get("id")))
             .socialType(KAKAO)
             .createdDate(LocalDateTime.now())
             .build();
@@ -90,7 +97,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
     private void setRoleIfNotSame(User user, OAuth2Authentication authentication, Map<String, String> map) {    //인증된 authentication이 권한을 갖고 있는지 체크하는 용도/관한이 없을 경우 SecurityContextHolder를 사용해 해당 소셜 미디어 타입으로 권한을 저장
         if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority(user.getSocialType().getRoletype()))) {
-            SecurityContextHolder.getContext().setAuthentication(map, "N/A", AuthorityUtils.createAuthorityList(user.getSocialType().getRoletype()));
+            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(map, "N/A", AuthorityUtils.createAuthorityList(user.getSocialType().getRoletype())));
         }
     }
 

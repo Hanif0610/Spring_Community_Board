@@ -40,6 +40,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {  //자동 설
     protected void configure(HttpSecurity http) throws Exception {
         CharacterEncodingFilter filter = new CharacterEncodingFilter();
         http.authorizeRequests().antMatchers("/", "/login/**", "/css/**", "/images/**", "/js/**", "/console/**").permitAll()
+                .antMatchers("/facebook").hasAuthority(FACEBOOK.getRoletype())
+                .antMatchers("/google").hasAuthority(GOOGLE.getRoletype())
+                .antMatchers("/kakao").hasAuthority(KAKAO.getRoletype())
                 .anyRequest().authenticated()
             .and()
                 .headers().frameOptions().disable()

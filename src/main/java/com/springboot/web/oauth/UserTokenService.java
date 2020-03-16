@@ -17,15 +17,15 @@ public class UserTokenService extends UserInfoTokenServices {
     }
 
     public class OAuth2AuthoritiesExtractor implements AuthoritiesExtractor {
-        private String socialtype;
+        private String socialType;
 
         public OAuth2AuthoritiesExtractor(SocialType socialType) {
-            this.socialtype = socialType.getRoletype();
+            this.socialType = socialType.getRoletype();
         }
 
         @Override
         public List<GrantedAuthority> extractAuthorities(Map<String, Object> map) {
-            return AuthorityUtils.createAuthorityList(this.socialtype);
+            return AuthorityUtils.createAuthorityList(this.socialType);
         }
     }
 }

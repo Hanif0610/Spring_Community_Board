@@ -25,4 +25,8 @@ public class BoardService {
     public Board findBoardByIdx(Long idx) {
         return boardRepository.findOne(idx);       //board의 idx 값을 사용하여 board 객체 변환
     }
+
+    public Board saveAndUpdateBoard(Board board) {
+        return boardRepository.save(board);
+    }
 }
